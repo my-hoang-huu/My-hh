@@ -407,8 +407,13 @@ WHERE MAGV IN (SELECT TRGKHOA FROM KHOA)
 --UPDATE HOCVIEN1
 --SET GHICHU = 'CAM THI'
 --WHERE 
---4.	Cập nhật giá trị cho cột XEPLOAI trong quan hệ HOCVIEN 
 
+--4.	Cập nhật giá trị cho cột XEPLOAI trong quan hệ HOCVIEN như sau:
+--o	Nếu DIEMTB >= 9 thì XEPLOAI =”XS”
+--o	Nếu  8 <= DIEMTB < 9 thì XEPLOAI = “G”
+--o	Nếu  6.5 <= DIEMTB < 8 thì XEPLOAI = “K”
+--o	Nếu  5  <=  DIEMTB < 6.5 thì XEPLOAI = “TB”
+--o	Nếu  DIEMTB < 5 thì XEPLOAI = ”Y”
 
 --III. Ngôn ngữ truy vấn dữ liệu:
 --1.	In ra danh sách (mã học viên, họ tên, ngày sinh, mã lớp) lớp trưởng của các lớp.

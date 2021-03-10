@@ -88,15 +88,20 @@ ALTER TABLE SANPHAM ADD CONSTRAINT CK_DVT CHECK (DVT IN('cay','hop','cai','quyen
 
 ALTER TABLE SANPHAM ADD CONSTRAINT CK_GIA CHECK (GIA >= 500)
 
---???9.	Mỗi lần mua hàng, khách hàng phải mua ít nhất 1 sản phẩm.
+--9.	Mỗi lần mua hàng, khách hàng phải mua ít nhất 1 sản phẩm.
 
 --10.	Ngày khách hàng đăng ký là khách hàng thành viên phải lớn hơn ngày sinh của người đó.
 
 ALTER TABLE KHACHHANG ADD CONSTRAINT CK_KHACHHANG CHECK(NGDK>NGSINH)
+--11.	Ngày mua hàng (NGHD) của một khách hàng thành viên sẽ lớn hơn hoặc bằng ngày khách hàng đó đăng ký thành viên (NGDK).
+--12.	Ngày bán hàng (NGHD) của một nhân viên phải lớn hơn hoặc bằng ngày nhân viên đó vào làm.
+--13.	Mỗi một hóa đơn phải có ít nhất một chi tiết hóa đơn.
+--14.	Trị giá của một hóa đơn là tổng thành tiền (số lượng*đơn giá) của các chi tiết thuộc hóa đơn đó.
+--15.	Doanh số của một khách hàng là tổng trị giá các hóa đơn mà khách hàng thành viên đó đã mua.
 
 -- Buoi 2: nhap du lieu
 -- II.Ngôn ngữ thao tác dữ liệu (Data Manipulation Language):
-
+--1.	Nhập dữ liệu cho các quan hệ trên.
 --KHACHHHANG
 INSERT INTO KHACHHANG (MAKH,HOTEN,DCHI,SODT,NGSINH,NGDK,DOANHSO) VALUES ('KH01','Nguyen Van A','731 Tran Hung Dao, Q5, TPHCM','08823451','22/10/1960','22/07/2006','13060000')
 INSERT INTO KHACHHANG (MAKH,HOTEN,DCHI,SODT,NGSINH,NGDK,DOANHSO) VALUES ('KH02','Tran Ngoc Han','23/5 Nguyen Trai, Q5, TPHCM','0908256478','3/4/1974','30/07/2006','280000')
@@ -290,6 +295,10 @@ WHERE NGHD = '1/1/2007' OR NGHD = '2/1/2007'
 SELECT SOHD, NGHD, TRIGIA
 FROM HOADON
 WHERE MONTH(NGHD) = 1 AND YEAR(NGHD) = 2007 ORDER BY NGHD ASC, TRIGIA DESC
+--8.	In ra danh sách các khách hàng (MAKH, HOTEN) đã mua hàng trong ngày 1/1/2007.
+--9.	In ra số hóa đơn, trị giá các hóa đơn do nhân viên có tên “Nguyen Van B” lập trong ngày 28/10/2006.
+--10.	In ra danh sách các sản phẩm (MASP,TENSP) được khách hàng có tên “Nguyen Van A” mua trong tháng 10/2006.
+
 --11.	Tìm các số hóa đơn đã mua sản phẩm có mã số “BB01” hoặc “BB02”.
 SELECT SOHD, MASP
 FROM CTHD
@@ -318,24 +327,38 @@ From HOADON ,KHACHHANG
 where HOADON.makh = KHACHHANG.makh
 
 -- QLBH phần III câu 8,9,10, 19 tới 25, 31 tới 38
+--1.	In ra danh sách các sản phẩm (MASP,TENSP) do “Trung Quoc” sản xuất.
+--2.	In ra danh sách các sản phẩm (MASP, TENSP) có đơn vị tính là “cay”, ”quyen”.
+--3.	In ra danh sách các sản phẩm (MASP,TENSP) có mã sản phẩm bắt đầu là “B” và kết thúc là “01”.
+--4.	In ra danh sách các sản phẩm (MASP,TENSP) do “Trung Quốc” sản xuất có giá từ 30.000 đến 40.000.
+--5.	In ra danh sách các sản phẩm (MASP,TENSP) do “Trung Quoc” hoặc “Thai Lan” sản xuất có giá từ 30.000 đến 40.000.
+--6.	In ra các số hóa đơn, trị giá hóa đơn bán ra trong ngày 1/1/2007 và ngày 2/1/2007.
+--7.	In ra các số hóa đơn, trị giá hóa đơn trong tháng 1/2007, sắp xếp theo ngày (tăng dần) và trị giá của hóa đơn (giảm dần).
+
 --8.	In ra danh sách các khách hàng (MAKH, HOTEN) đã mua hàng trong ngày 1/1/2007.
 SELECT KH.MAKH, HOTEN, NGHD
 FROM HOADON HD JOIN KHACHHANG KH
 ON KH.MAKH = HD.MAKH
 WHERE NGHD ='1/1/2007'
-
 --9.	In ra số hóa đơn, trị giá các hóa đơn do nhân viên có tên “Nguyen Van B” lập trong ngày 28/10/2006.
 SELECT SOHD, TRIGIA, HOTEN, NGHD
 FROM HOADON HD JOIN NHANVIEN NV
 ON HD.MANV = NV.MANV
 WHERE HOTEN = 'Nguyen Van B' AND NGHD ='28/10/2006'
-
-
 --10.	In ra danh sách các sản phẩm (MASP,TENSP) được khách hàng có tên “Nguyen Van A” mua trong tháng 10/2006.
 SELECT SP.MASP, TENSP, HOTEN, NGHD
 FROM (KHACHHANG KH JOIN HOADON HD ON KH.MAKH = HD.MAKH) JOIN (SANPHAM SP JOIN CTHD ON SP.MASP = CTHD.MASP)
 ON HD.SOHD = CTHD.SOHD
 WHERE HOTEN = 'Nguyen Van A' AND MONTH(NGHD) = 10 AND YEAR(NGHD) =2006
+
+--11.	Tìm các số hóa đơn đã mua sản phẩm có mã số “BB01” hoặc “BB02”.
+--12.	Tìm các số hóa đơn đã mua sản phẩm có mã số “BB01” hoặc “BB02”, mỗi sản phẩm mua với số lượng từ 10 đến 20.
+--13.	Tìm các số hóa đơn mua cùng lúc 2 sản phẩm có mã số “BB01” và “BB02”, mỗi sản phẩm mua với số lượng từ 10 đến 20.
+--14.	In ra danh sách các sản phẩm (MASP,TENSP) do “Trung Quoc” sản xuất hoặc các sản phẩm được bán ra trong ngày 1/1/2007.
+--15.	In ra danh sách các sản phẩm (MASP,TENSP) không bán được.
+--16.	In ra danh sách các sản phẩm (MASP,TENSP) không bán được trong năm 2006.
+--17.	In ra danh sách các sản phẩm (MASP,TENSP) do “Trung Quoc” sản xuất không bán được trong năm 2006.
+----18.	Tìm số hóa đơn đã mua tất cả các sản phẩm do Singapore sản xuất.
 
 --19.	Có bao nhiêu hóa đơn không phải của khách hàng đăng ký thành viên mua?
 SELECT SOHD, HD.MAKH, HOTEN, NGDK
@@ -366,6 +389,13 @@ SELECT HOTEN, TRIGIA, NGHD
 FROM HOADON HD JOIN KHACHHANG KH 
 ON HD.MAKH = KH.MAKH
 WHERE YEAR(NGHD) = 2006 AND TRIGIA = (SELECT MAX(TRIGIA) FROM HOADON)
+
+--26.	In ra danh sách 3 khách hàng (MAKH, HOTEN) có doanh số cao nhất.
+--27.	In ra danh sách các sản phẩm (MASP, TENSP) có giá bán bằng 1 trong 3 mức giá cao nhất.
+--28.	In ra danh sách các sản phẩm (MASP, TENSP) do “Thai Lan” sản xuất có giá bằng 1 trong 3 mức giá cao nhất (của tất cả các sản phẩm).
+--29.	In ra danh sách các sản phẩm (MASP, TENSP) do “Trung Quoc” sản xuất có giá bằng 1 trong 3 mức giá cao nhất (của sản phẩm do “Trung Quoc” sản xuất).
+--30.	* In ra danh sách 3 khách hàng có doanh số cao nhất (sắp xếp theo kiểu xếp hạng).
+
 --31.	Tính tổng số sản phẩm do “Trung Quoc” sản xuất.
 SELECT COUNT(MASP) [COUNT_SAN PHAM TRUNG QUOC]
 FROM SANPHAM
@@ -386,6 +416,7 @@ GROUP BY NGHD
 SELECT SP.MASP, TENSP, SUM(SL) [TONGSOLUONG]
 FROM (CTHD JOIN HOADON HD ON CTHD.SOHD = HD.SOHD) JOIN SANPHAM SP
 ON CTHD.MASP = SP.MASP
+WHERE YEAR(NGHD) = 2006 AND MONTH(NGHD) = 10
 GROUP BY SP.MASP, TENSP
 --36.	Tính doanh thu bán hàng của từng tháng trong năm 2006.
 SELECT MONTH(NGHD) THANG, SUM(TRIGIA) [DOANH THU]
@@ -404,3 +435,34 @@ ON CT.MASP = SP.MASP
 WHERE NUOCSX = 'Viet Nam'
 GROUP BY SOHD
 HAVING COUNT(DISTINCT CT.MASP) >= 3
+
+
+-- Buổi 12 
+
+select distinct sohd 
+from CTHD where masp='BB01' and sohd IN
+(select sohd from CTHD where masp='BB02')
+
+select distinct sohd 
+from CTHD where masp='BB01' and sohd NOT IN
+(select sohd from CTHD where masp='BB02')SELECT sohd
+FROM cthd
+WHERE masp='BB01'
+INTERSECT
+SELECT sohd
+FROM cthd
+WHERE masp='BB02'
+
+SELECT sohd
+FROM cthd
+WHERE masp='BB02'
+EXCEPT
+SELECT sohd
+FROM cthd
+WHERE masp='BB01'
+
+--39.	Tìm khách hàng (MAKH, HOTEN) có số lần mua hàng nhiều nhất. 
+--40.	Tháng mấy trong năm 2006, doanh số bán hàng cao nhất ?
+--41.	Tìm sản phẩm (MASP, TENSP) có tổng số lượng bán ra thấp nhất trong năm 2006.
+--42.	Tìm nước sản xuất sản xuất ít nhất 3 sản phẩm có giá bán khác nhau.
+--43.	*Mỗi nước sản xuất, tìm sản phẩm (MASP,TENSP) có giá bán cao nhất.
