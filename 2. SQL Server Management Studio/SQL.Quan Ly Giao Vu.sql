@@ -8,8 +8,6 @@ USE QuanLyGiaoVu
 -------
 -- 1. Tạo quan hệ và khai báo tất cả các ràng buộc khóa chính, khóa nại. Thêm vào 3 thuộc tính GHICHU, DIEMTB, XEPLOAI cho quan hệ HOCVIEN.
 
-
-
 CREATE TABLE KHOA 
 (
 MAKHOA VARCHAR(4) PRIMARY KEY,
@@ -96,9 +94,13 @@ LANTHI tinyint,
 NGTHI smalldatetime,
 DIEM numeric(4,2),
 KQUA varchar(10),
-CONSTRAINT PK_KETQUATHI PRIMARY KEY(MAHV, MAMH, LANTHI)
+CONSTRAINT PK_KETQUATHI PRIMARY KEY (MAHV, MAMH, LANTHI)
 )
 
+--ALTER TABLE KHOA DROP CONSTRAINT FK_TRGKHOA_MAGV
+--ALTER TABLE GIAOVIEN DROP CONSTRAINT FK__GIAOVIEN__MAKHOA__7073AF84
+--ALTER TABLE LOP DROP CONSTRAINT FK__LOP__MAGVCN__73501C2F
+--ALTER TABLE LOP DROP CONSTRAINT FK_TRGLOP_MAHV
 --DROP TABLE KETQUATHI
 --DROP TABLE GIANGDAY
 --DROP TABLE HOCVIEN
@@ -111,7 +113,7 @@ CONSTRAINT PK_KETQUATHI PRIMARY KEY(MAHV, MAMH, LANTHI)
 
 -- 2. Thuộc tính GIOITINH chỉ có giá trị là “Nam” hoặc “Nu”. 
 ALTER TABLE HOCVIEN ADD CONSTRAINT CK_GIOITINH CHECK (GIOITINH = 'Nam' or GIOITINH = 'Nu')
-ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_GIOITINH_GV CHECK (GIOITINH IN('Nam', 'Nu')) -- Cach 2
+--ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_GIOITINH_GV CHECK (GIOITINH IN('Nam', 'Nu')) -- Cach 2
 -- 3. Điểm số của một lần thi có giá trị từ 0 đến 10 và cần lưu đến 2 số lẻ (VD: 6.22). 
 ALTER TABLE KETQUATHI ADD CONSTRAINT CK_DIEM CHECK (DIEM >= 0 AND DIEM <=10)
 -- 4. Kết quả thi là “Dat” nếu điểm từ 5 đến 10  và “Khong dat” nếu điểm nhỏ hơn 5. 
@@ -123,6 +125,14 @@ ALTER TABLE GIANGDAY ADD CONSTRAINT CK_HOCKY CHECK (HOCKY IN (1,2,3))
 -- 7. Học vị của giáo viên chỉ có thể là “CN”, “KS”, “Ths”, ”TS”, ”PTS”. 
 ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_HOCVI CHECK (HOCVI IN ('CN', 'KS', 'Ths', 'TS', 'PTS'))
 -- 8. Lớp trưởng của một lớp phải là học viên của lớp đó. 
+--ALTER TABLE (SELECT * FROM LOP JOIN HOCVIEN HV ON LOP.MALOP = HV.MALOP)
+--ADD CONSTRAINT CK_TRGLOP 
+--CHECK MALOP = (SELECT MALOP FROM HOCVIEN WHERE MAHV = TRGLOP)
+
+
+--ALTER TABLE LOP
+--ADD CONSTRAINT CK_TRGLOP 
+--CHECK (TRGLOP IN (SELECT MAHV FROM HOCVIEN WHERE LOP 
 
 -- 9. Học viên ít nhất là 18 tuổi. 
 
@@ -149,7 +159,7 @@ INSERT INTO KHOA VALUES('KHMT','Khoa hoc may tinh','7/6/2005','GV01')
 INSERT INTO KHOA VALUES('HTTT','He thong thong tin','7/6/2005','GV02')
 INSERT INTO KHOA VALUES('CNPM','Cong nghe phan mem','7/6/2005','GV04')
 INSERT INTO KHOA VALUES('MTT','Mang va truyen thong','20/10/2005','GV03')
-INSERT INTO KHOA VALUES('KTMT','Ky thuat may tinh','20/12/2005','GV05')---????
+INSERT INTO KHOA VALUES('KTMT','Ky thuat may tinh','20/12/2005', NULL)
 
 -- NHAP DU LIEU MONHOC --
 INSERT INTO MONHOC VALUES('THDC','Tin hoc dai cuong',4,1,'KHMT')
@@ -324,12 +334,8 @@ INSERT INTO KETQUATHI VALUES ('K1305','CTRR',1,'13/5/2006',10,'Dat')
 -- Thêm khóa ngoại
 ALTER TABLE KHOA ADD CONSTRAINT FK_TRGKHOA_MAGV FOREIGN KEY(TRGKHOA) REFERENCES GIAOVIEN(MAGV)
 ALTER TABLE LOP ADD CONSTRAINT FK_TRGLOP_MAHV FOREIGN KEY(TRGLOP) REFERENCES HOCVIEN(MAHV)
-ALTER TABLE KHOA DROP CONSTRAINT FK_TRGKHOA_MAGV
-ALTER TABLE LOP DROP CONSTRAINT FK_TRGLOP_MAHV
--- Chỉnh lại cột trưởng khoa
-UPDATE KHOA
-SET TRGKHOA = ''
-WHERE TRGKHOA = 'GV05'
+--ALTER TABLE KHOA DROP CONSTRAINT FK_TRGKHOA_MAGV
+--ALTER TABLE LOP DROP CONSTRAINT FK_TRGLOP_MAHV
 ------
 SELECT * FROM DIEUKIEN
 SELECT * FROM GIANGDAY
@@ -340,7 +346,7 @@ SELECT * FROM KHOA
 SELECT * FROM LOP
 SELECT * FROM MONHOC
 ------
-SELECT KETQUATHI.MAMH, TENMH, DIEM
+SELECT MAHV, KETQUATHI.MAMH, TENMH, DIEM
 FROM MONHOC JOIN KETQUATHI
 ON MONHOC.MAMH = KETQUATHI.MAMH
 
@@ -379,25 +385,97 @@ WHERE hv.mahv = kq.mahv
 GROUP BY hv.mahv, ho, ten
 HAVING AVG(Diem)>6
 
-
-
-
-
 --II. Ngôn ngữ thao tác dữ liệu (Data Manipulation Language):
+SELECT *
+INTO GIAOVIEN1
+FROM GIAOVIEN
+
+SELECT *
+INTO KETQUATHI1
+FROM KETQUATHI
+
+SELECT *
+INTO HOCVIEN1
+FROM HOCVIEN
 --1.	Tăng hệ số lương thêm 0.2 cho những giáo viên là trưởng khoa.
-UPDATE 
+UPDATE GIAOVIEN1
+SET HESO = HESO + 0.2
+WHERE MAGV IN (SELECT TRGKHOA FROM KHOA)
 --2.	Cập nhật giá trị điểm trung bình tất cả các môn học (DIEMTB) của mỗi học viên (tất cả các môn học đều có hệ số 1 và nếu học viên thi một môn nhiều lần, chỉ lấy điểm của lần thi sau cùng).
 
 --3.	Cập nhật giá trị cho cột GHICHU là “Cam thi” đối với trường hợp: học viên có một môn bất kỳ thi lần thứ 3 dưới 5 điểm.
+--UPDATE HOCVIEN1
+--SET GHICHU = 'CAM THI'
+--WHERE 
 --4.	Cập nhật giá trị cho cột XEPLOAI trong quan hệ HOCVIEN 
-
 
 
 --III. Ngôn ngữ truy vấn dữ liệu:
 --1.	In ra danh sách (mã học viên, họ tên, ngày sinh, mã lớp) lớp trưởng của các lớp.
+SELECT MAHV, HO, TEN, NGSINH, MALOP
+FROM HOCVIEN
+WHERE MAHV IN (SELECT TRGLOP FROM LOP)
 --2.	In ra bảng điểm khi thi (mã học viên, họ tên , lần thi, điểm số) môn CTRR của lớp “K12”, sắp xếp theo tên, họ học viên.
+SELECT KQ.MAHV, HO, TEN, LANTHI, DIEM, MAMH, MALOP
+FROM KETQUATHI KQ JOIN HOCVIEN HV
+ON KQ.MAHV = HV.MAHV
+WHERE MAMH = 'CTRR' AND MALOP = 'K12'
 --3.	In ra danh sách những học viên (mã học viên, họ tên) và những môn học mà học viên đó thi lần thứ nhất đã đạt.
+SELECT HV.MAHV, HO, TEN, MAMH, LANTHI, KQUA
+FROM HOCVIEN HV JOIN KETQUATHI KQ
+ON HV.MAHV = KQ. MAHV
+WHERE LANTHI = 1 AND KQUA = 'DAT'
 --4.	In ra danh sách học viên (mã học viên, họ tên) của lớp “K11” thi môn CTRR không đạt (ở lần thi 1).
+SELECT HV.MAHV, HO, TEN, HV.MALOP, MAMH, KQUA, LANTHI
+FROM (HOCVIEN HV JOIN LOP L ON HV.MALOP = L.MALOP) JOIN KETQUATHI KQ
+ON HV.MAHV = KQ.MAHV
+WHERE HV.MALOP = 'K11' AND MAMH = 'CTRR' AND KQUA ='KHONG DAT' AND LANTHI = 1
 --5.	Tìm tên những môn học mà giáo viên có tên “Tran Tam Thanh” dạy trong học kỳ 1 năm 2006.
+SELECT MAMH, HOTEN, HOCKY, NAM
+FROM GIAOVIEN GV JOIN GIANGDAY GD 
+ON GV.MAGV = GD.MAGV
+WHERE HOTEN = 'TRAN TAM THANH' AND HOCKY = 1 AND NAM = 2006
+GROUP BY MAMH, HOTEN, HOCKY, NAM
 --6.	Tìm những môn học (mã môn học, tên môn học) mà giáo viên chủ nhiệm lớp “K11” dạy trong học kỳ 1 năm 2006.
+SELECT MAGV, MH.MAMH, TENMH, MAGV, HOCKY, NAM
+FROM MONHOC MH JOIN GIANGDAY GD
+ON MH.MAMH = GD.MAMH
+WHERE MAGV = (SELECT MAGVCN FROM LOP WHERE MALOP = 'K11')
 --7.	Tìm họ tên lớp trưởng của các lớp mà giáo viên có tên “Nguyen To Lan” dạy môn “Co So Du Lieu”.
+SELECT TRGLOP, MAHV, HO, TEN, HV. MALOP, MAGV, MAMH
+FROM (HOCVIEN HV JOIN GIANGDAY GD ON HV.MALOP = GD.MALOP) JOIN LOP
+ON HV.MALOP = LOP.MALOP
+WHERE MAGV = (SELECT MAGV FROM GIAOVIEN WHERE HOTEN = 'NGUYEN TO LAN')
+AND MAMH = (SELECT MAMH FROM MONHOC WHERE TENMH = 'CO SO DU LIEU')
+AND MAHV = TRGLOP
+--8.	In ra danh sách những môn học (mã môn học, tên môn học) phải học liền trước môn “Co So Du Lieu”.
+SELECT MAMH_TRUOC, TENMH, MH.MAMH
+FROM MONHOC MH JOIN DIEUKIEN DK
+ON MH.MAMH = DK.MAMH
+WHERE TENMH = 'CO SO DU LIEU'
+--9.	Môn “Cau Truc Roi Rac” là môn bắt buộc phải học liền trước những môn học (mã môn học, tên môn học) nào.
+SELECT MH.MAMH, TENMH
+FROM MONHOC MH JOIN DIEUKIEN DK
+ON MH.MAMH = DK.MAMH
+WHERE MAMH_TRUOC = (SELECT MAMH FROM MONHOC WHERE TENMH = 'CAU TRUC ROI RAC')
+--10.	Tìm họ tên giáo viên dạy môn CTRR cho cả hai lớp “K11” và “K12” trong cùng học kỳ 1 năm 2006.
+--11.	Tìm những học viên (mã học viên, họ tên) thi không đạt môn CSDL ở lần thi thứ 1 nhưng chưa thi lại môn này.
+--12.	Tìm giáo viên (mã giáo viên, họ tên) không được phân công giảng dạy bất kỳ môn học nào.
+--13.	Tìm giáo viên (mã giáo viên, họ tên) không được phân công giảng dạy bất kỳ môn học nào thuộc khoa giáo viên đó phụ trách.
+--14.	Tìm họ tên các học viên thuộc lớp “K11” thi một môn bất kỳ quá 3 lần vẫn “Khong dat” hoặc thi lần thứ 2 môn CTRR được 5 điểm.
+--15.	Tìm họ tên giáo viên dạy môn CTRR cho ít nhất hai lớp trong cùng một học kỳ của một năm học.
+--16.	Danh sách học viên và điểm thi môn CSDL (chỉ lấy điểm của lần thi sau cùng).
+--17.	Danh sách học viên và điểm thi môn “Co So Du Lieu” (chỉ lấy điểm cao nhất của các lần thi).
+--18.	Khoa nào (mã khoa, tên khoa) được thành lập sớm nhất.
+--19.	Có bao nhiêu giáo viên có học hàm là “GS” hoặc “PGS”.
+--20.	Thống kê có bao nhiêu giáo viên có học vị là “CN”, “KS”, “Ths”, “TS”, “PTS” trong mỗi khoa.
+--21.	Mỗi môn học thống kê số lượng học viên theo kết quả (đạt và không đạt).
+--22.	Tìm giáo viên (mã giáo viên, họ tên) là giáo viên chủ nhiệm của một lớp, đồng thời dạy cho lớp đó ít nhất một môn học.
+--23.	Tìm họ tên lớp trưởng của lớp có sỉ số cao nhất.
+--24.	Tìm học viên (mã học viên, họ tên) có số môn đạt điểm 9,10 nhiều nhất.
+--25.	Trong từng lớp, tìm học viên (mã học viên, họ tên) có số môn đạt điểm 9,10 nhiều nhất.
+--26.	Trong từng học kỳ của từng năm, mỗi giáo viên phân công dạy bao nhiêu môn học, bao nhiêu lớp.
+--27.	Trong từng học kỳ của từng năm, tìm giáo viên (mã giáo viên, họ tên) giảng dạy nhiều nhất.
+--28.	Tìm môn học (mã môn học, tên môn học) có nhiều học viên thi không đạt (ở lần thi thứ 1) nhất.
+--29.	Tìm học viên (mã học viên, họ tên) thi môn nào cũng đạt (chỉ xét lần thi thứ 1).
+--30.	* Tìm học viên (mã học viên, họ tên) đã thi tất cả các môn đều đạt (chỉ xét lần thi thứ 1).
