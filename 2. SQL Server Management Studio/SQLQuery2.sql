@@ -109,38 +109,38 @@ CONSTRAINT PK_KETQUATHI PRIMARY KEY(MAHV, MAMH, LANTHI)
 --DROP TABLE KHOA
 --------------------------
 
----- 2. Thuộc tính GIOITINH chỉ có giá trị là “Nam” hoặc “Nu”. 
---ALTER TABLE HOCVIEN ADD CONSTRAINT CK_GIOITINH CHECK (GIOITINH = 'Nam' or GIOITINH = 'Nu')
---ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_GIOITINH_GV CHECK (GIOITINH IN('Nam', 'Nu')) -- Cach 2
----- 3. Điểm số của một lần thi có giá trị từ 0 đến 10 và cần lưu đến 2 số lẻ (VD: 6.22). 
---ALTER TABLE KETQUATHI ADD CONSTRAINT CK_DIEM CHECK (DIEM >= 0 AND DIEM <=10)
----- 4. Kết quả thi là “Dat” nếu điểm từ 5 đến 10  và “Khong dat” nếu điểm nhỏ hơn 5. 
+-- 2. Thuộc tính GIOITINH chỉ có giá trị là “Nam” hoặc “Nu”. 
+ALTER TABLE HOCVIEN ADD CONSTRAINT CK_GIOITINH CHECK (GIOITINH = 'Nam' or GIOITINH = 'Nu')
+ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_GIOITINH_GV CHECK (GIOITINH IN('Nam', 'Nu')) -- Cach 2
+-- 3. Điểm số của một lần thi có giá trị từ 0 đến 10 và cần lưu đến 2 số lẻ (VD: 6.22). 
+ALTER TABLE KETQUATHI ADD CONSTRAINT CK_DIEM CHECK (DIEM >= 0 AND DIEM <=10)
+-- 4. Kết quả thi là “Dat” nếu điểm từ 5 đến 10  và “Khong dat” nếu điểm nhỏ hơn 5. 
 
----- 5. Học viên thi một môn tối đa 3 lần. ?
---ALTER TABLE KETQUATHI ADD CONSTRAINT CK_LANTHI CHECK (LANTHI <=3)
----- 6. Học kỳ chỉ có giá trị từ 1 đến 3. 
---ALTER TABLE GIANGDAY ADD CONSTRAINT CK_HOCKY CHECK (HOCKY IN (1,2,3))
----- 7. Học vị của giáo viên chỉ có thể là “CN”, “KS”, “Ths”, ”TS”, ”PTS”. 
---ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_HOCVI CHECK (HOCVI IN ('CN', 'KS', 'Ths', 'TS', 'PTS'))
----- 8. Lớp trưởng của một lớp phải là học viên của lớp đó. 
+-- 5. Học viên thi một môn tối đa 3 lần. ?
+ALTER TABLE KETQUATHI ADD CONSTRAINT CK_LANTHI CHECK (LANTHI <=3)
+-- 6. Học kỳ chỉ có giá trị từ 1 đến 3. 
+ALTER TABLE GIANGDAY ADD CONSTRAINT CK_HOCKY CHECK (HOCKY IN (1,2,3))
+-- 7. Học vị của giáo viên chỉ có thể là “CN”, “KS”, “Ths”, ”TS”, ”PTS”. 
+ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_HOCVI CHECK (HOCVI IN ('CN', 'KS', 'Ths', 'TS', 'PTS'))
+-- 8. Lớp trưởng của một lớp phải là học viên của lớp đó. 
 
----- 9. Học viên ít nhất là 18 tuổi. 
+-- 9. Học viên ít nhất là 18 tuổi. 
 
----- 10. Giảng dạy một môn học ngày bắt đầu (TUNGAY) phải nhỏ hơn ngày kết thúc (DENNGAY). 
---ALTER TABLE GIANGDAY ADD CONSTRAINT CK_LICH CHECK (TUNGAY < DENNGAY)
----- 11. Giáo viên khi vào làm ít nhất là 22 tuổi. 
+-- 10. Giảng dạy một môn học ngày bắt đầu (TUNGAY) phải nhỏ hơn ngày kết thúc (DENNGAY). 
+ALTER TABLE GIANGDAY ADD CONSTRAINT CK_LICH CHECK (TUNGAY < DENNGAY)
+-- 11. Giáo viên khi vào làm ít nhất là 22 tuổi. 
 
----- 12. Tất cả các môn học đều có số tín chỉ lý thuyết và tín chỉ thực hành chênh lệch nhau không quá 3. 
---ALTER TABLE MONHOC ADD CONSTRAINT CK_TINCHI CHECK (TCLT - TCTH >= -3 AND TCLT - TCTH <= 3)
--- 13. Mỗi học kỳ của một năm học, một lớp chỉ được học tối đa 3 môn. 
+-- 12. Tất cả các môn học đều có số tín chỉ lý thuyết và tín chỉ thực hành chênh lệch nhau không quá 3. 
+ALTER TABLE MONHOC ADD CONSTRAINT CK_TINCHI CHECK (TCLT - TCTH >= -3 AND TCLT - TCTH <= 3)
+ --13. Mỗi học kỳ của một năm học, một lớp chỉ được học tối đa 3 môn. 
 
--- 14. Sỉ số của một lớp bằng với số lượng học viên thuộc lớp đó. 
--- 15. Các giáo viên có cùng học vị, học hàm, hệ số lương thì mức lương bằng nhau. 
--- 16. Học viên chỉ được thi lại (lần thi >1) khi điểm của lần thi trước đó dưới 5. 
--- 17. Ngày thi của lần thi sau phải lớn hơn ngày thi của lần thi trước (cùng học viên, cùng môn học). 
--- 18. Học viên chỉ được thi những môn mà lớp của học viên đó đã học xong. 
--- 19. Khi phân công giảng dạy một môn học, phải xét đến thứ tự trước sau giữa các môn học (sau khi học xong những môn học phải học trước mới được học những môn liền sau). 
--- 20. Giáo viên chỉ được phân công dạy những môn thuộc khoa giáo viên đó phụ trách.
+ --14. Sỉ số của một lớp bằng với số lượng học viên thuộc lớp đó. 
+ --15. Các giáo viên có cùng học vị, học hàm, hệ số lương thì mức lương bằng nhau. 
+ --16. Học viên chỉ được thi lại (lần thi >1) khi điểm của lần thi trước đó dưới 5. 
+ --17. Ngày thi của lần thi sau phải lớn hơn ngày thi của lần thi trước (cùng học viên, cùng môn học). 
+ --18. Học viên chỉ được thi những môn mà lớp của học viên đó đã học xong. 
+ --19. Khi phân công giảng dạy một môn học, phải xét đến thứ tự trước sau giữa các môn học (sau khi học xong những môn học phải học trước mới được học những môn liền sau). 
+ --20. Giáo viên chỉ được phân công dạy những môn thuộc khoa giáo viên đó phụ trách.
 
 
 

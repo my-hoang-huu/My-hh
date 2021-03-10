@@ -237,7 +237,7 @@ UPDATE SANPHAM1 SET GIA = GIA*0.95 WHERE (NUOCSX = 'Trung Quoc') AND (GIA <= 100
 UPDATE KHACHHANG1 SET LOAIKH = 'Vip' WHERE ((NGDK < '1/1/2007') AND (DOANHSO >= 10000000)) OR ((NGDK >= '1/1/2007')  AND (DOANHSO >= 2000000)) 
 
 
-----------------
+-----------------
 -- Buổi 4
 
 select MASP,TENSP, NUOCSX from SANPHAM where NUOCSX='Trung Quoc'
