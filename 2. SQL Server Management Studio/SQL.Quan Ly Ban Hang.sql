@@ -1,8 +1,9 @@
 ﻿--BAI TAP 1
+--USE MASTER
 SET DATEFORMAT DMY
-create database test_myhh
+create database QuanLyBanHang
 go
-use test_myhh
+use QuanLyBanHang
 go
 --I. Ngon ngu dinh nghia du lieu
 --1. Tạo các quan hệ và khai báo các khóa chính, khóa ngoại của quan hệ.
@@ -81,7 +82,7 @@ ALTER TABLE KHACHHANG ALTER COLUMN LOAIKH VARCHAR(40)
 -- Cach 1:
 ALTER TABLE SANPHAM ADD CONSTRAINT CK_DVT CHECK (DVT IN('cay','hop','cai','quyen','chuc'))
 -- Cach 2:
-ALTER TABLE SANPHAM ADD CONSTRAINT CK_DVT CHECK (DVT = 'cay' or DVT = 'hop' or DVT ='cai' or DVT ='quyen' or DVT ='chuc')
+--ALTER TABLE SANPHAM ADD CONSTRAINT CK_DVT CHECK (DVT = 'cay' or DVT = 'hop' or DVT ='cai' or DVT ='quyen' or DVT ='chuc')
 
 --8.	Giá bán của sản phẩm từ 500 đồng trở lên.
 
