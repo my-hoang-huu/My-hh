@@ -422,7 +422,10 @@ UPDATE GIAOVIEN1
 SET HESO = HESO + 0.2
 WHERE MAGV IN (SELECT TRGKHOA FROM KHOA)
 --2.	Cập nhật giá trị điểm trung bình tất cả các môn học (DIEMTB) của mỗi học viên (tất cả các môn học đều có hệ số 1 và nếu học viên thi một môn nhiều lần, chỉ lấy điểm của lần thi sau cùng).
+UPDATE HOCVIEN1
+SET DIEMTB 
 
+SELECT 
 --3.	Cập nhật giá trị cho cột GHICHU là 'Cam thi' đối với trường hợp: học viên có một môn bất kỳ thi lần thứ 3 dưới 5 điểm.
 
 --UPDATE HOCVIEN1
@@ -625,8 +628,6 @@ AND SISO >= ALL(SELECT SISO FROM LOP)) -- Sĩ số các lớp cao nhất
 
 --24.	Tìm học viên (mã học viên, họ tên) có số môn đạt điểm 9,10 nhiều nhất.
 
-
-
 SELECT MAHV, HO, TEN
 FROM HOCVIEN
 WHERE MAHV IN (
@@ -640,14 +641,23 @@ FROM KETQUATHI
 WHERE DIEM = 9 OR DIEM = 10
 GROUP BY MAHV))
 
-
+SELECT	A.MAHV, HO, TEN,COUNT(MAMH) [SO MON]
+FROM		KETQUATHI A, HOCVIEN B
+WHERE	A.MAHV=B.MAHV AND (DIEM=9 OR DIEM=10) 
+GROUP BY  A.MAHV, HO, TEN
+HAVING	COUNT(MAMH)>=ALL(SELECT 	COUNT(MAMH)
+					  FROM	KETQUATHI 
+					  WHERE	DIEM=9 OR DIEM=10
+					  GROUP BY MAHV)
 --25.	Trong từng lớp, tìm học viên (mã học viên, họ tên) có số môn đạt điểm 9,10 nhiều nhất.
-
---(SELECT HV.MAHV, MALOP, COUNT(DIEM) D
---FROM HOCVIEN HV, KETQUATHI KQ
---WHERE HV.MAHV = KQ.MAHV AND (DIEM = 9 OR DIEM = 10)
---GROUP BY MALOP, HV.MAHV)
-
+SELECT	A.MAHV, MALOP, HO, TEN, COUNT(MAMH) [SO MON] 
+FROM	HOCVIEN A, KETQUATHI B
+WHERE	A.MAHV=B.MAHV AND (DIEM=9 OR DIEM=10) 
+GROUP BY A.MAHV, MALOP, HO, TEN -- Quan trọng là group MAHV: Số điểm 9, 10 của mỗi học viên, và mã lớp để đối chiếu với đk bên dưới having, các thông tin khác để bổ xung
+HAVING	COUNT(MAMH) >= ALL(SELECT COUNT(MAMH)
+					  FROM	HOCVIEN C, KETQUATHI D
+					  WHERE	C.MAHV = D.MAHV AND (DIEM=9 OR DIEM=10) AND C.MALOP = A.MALOP
+					  GROUP BY C.MAHV, MALOP)				  
 --SELECT MASP, TENSP FROM SANPHAM AS SP1 WHERE GIA =
 --(SELECT MAX(GIA) FROM SANPHAM SP2 WHERE SP1.NUOCSX = SP2.NUOCSX GROUP BY NUOCSX )
 
@@ -656,14 +666,15 @@ SELECT MAGV, HOCKY, NAM, COUNT(MALOP) SOLOP, COUNT(MAMH) SOMON
 FROM GIANGDAY
 GROUP BY MAGV, HOCKY, NAM
 --27.	Trong từng học kỳ của từng năm, tìm giáo viên (mã giáo viên, họ tên) giảng dạy nhiều nhất.
---SELECT HOCKY, NAM, GD.MAGV, HOTEN, COUNT(MALOP) SOLOP
---FROM GIANGDAY GD, GIAOVIEN GV
---WHERE GD.MAGV = GV.MAGV
---GROUP BY GD.MAGV, HOCKY, NAM, HOTEN
---HAVING COUNT(MALOP) >= ALL(
---SELECT COUNT(MALOP)
---FROM GIANGDAY
---GROUP BY MAGV, HOCKY, NAM)
+SELECT HOCKY, NAM, A.MAGV, HOTEN, COUNT(MALOP) SOLOP
+FROM GIANGDAY A, GIAOVIEN B
+WHERE A.MAGV = B.MAGV
+GROUP BY A.MAGV, HOCKY, NAM, HOTEN
+HAVING COUNT(MALOP) >= ALL(
+SELECT COUNT(MALOP)
+FROM GIANGDAY C
+WHERE A.HOCKY = C.HOCKY AND A.NAM = C.NAM
+GROUP BY MAGV, HOCKY, NAM)
 --28.	Tìm môn học (mã môn học, tên môn học) có nhiều học viên thi không đạt (ở lần thi thứ 1) nhất.
 SELECT TOP 1 KQ.MAMH, TENMH, COUNT(KQ.MAHV) SOHOCVIEN
 FROM MONHOC MH, KETQUATHI1 KQ
