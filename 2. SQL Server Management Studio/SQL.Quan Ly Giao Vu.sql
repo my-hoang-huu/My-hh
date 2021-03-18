@@ -702,21 +702,17 @@ FROM KETQUATHI1
 WHERE LANTHI = 1 AND KQUA = 'KHONG DAT')
 --30.	* Tìm học viên (mã học viên, họ tên) đã thi tất cả các môn đều đạt (chỉ xét lần thi thứ 1).
 
---Tìm mã học viên không thi đầy đủ các môn
+SELECT MAHV, HO, TEN
+FROM HOCVIEN
+WHERE NOT EXISTS (--Các môn mà học viên đó chưa thi hoặc thi nhưng chưa đạt trong lần thi 1
+SELECT DISTINCT MAMH
+FROM MONHOC
+WHERE MAMH NOT IN( --Các môn học viên đã thi và đạt trong lần thi 1
+SELECT MAMH 
+FROM KETQUATHI1 A
+WHERE LANTHI = 1 AND KQUA = 'DAT' AND A.MAHV = HOCVIEN.MAHV))
 
-SELECT MAMH
-FROM KETQUATHI A
-WHERE MAMH NOT IN(
-SELECT DISTINCT MAMH  -- Cac mon da thi
-FROM KETQUATHI B
-WHERE A.MAHV = B.MAHV
-)
-
-
---Các môn học viên đó chưa thi và chưa đạt trong lần thi 1
---Các môn học viên đã thi và đạt trong lần thi 1
-
-
+-- Cách 2: trên mạng
 SELECT	DISTINCT A.MAHV, HO, TEN
 FROM		KETQUATHI1 A, HOCVIEN B
 WHERE	A.MAHV=B.MAHV AND KQUA= 'DAT' AND LANTHI=1 AND  
@@ -725,3 +721,15 @@ WHERE	A.MAHV=B.MAHV AND KQUA= 'DAT' AND LANTHI=1 AND
 				WHERE	NOT EXISTS(SELECT	MAHV
 								FROM	KETQUATHI1 D
 								WHERE	D.MAHV=A.MAHV AND D.MAMH=C.MAMH))	
+
+--31.	* Tìm học viên (mã học viên, họ tên) đã thi môn nào cũng đạt (chỉ xét lần thi thứ 1).
+
+SELECT MAHV, HO, TEN
+FROM HOCVIEN
+WHERE NOT EXISTS (--Các môn mà học viên đó thi nhưng chưa đạt trong lần thi 1
+SELECT DISTINCT MAMH
+FROM KETQUATHI1
+WHERE MAMH NOT IN( --Các môn học viên đã thi và đạt trong lần thi 1
+SELECT MAMH 
+FROM KETQUATHI1 A
+WHERE LANTHI = 1 AND KQUA = 'DAT' AND A.MAHV = HOCVIEN.MAHV))
