@@ -133,29 +133,29 @@ ALTER TABLE GIANGDAY ADD CONSTRAINT CK_HOCKY CHECK (HOCKY IN (1,2,3))
 -- 7. Học vị của giáo viên chỉ có thể là 'CN', 'KS', 'Ths', 'TS', 'PTS'. 
 ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_HOCVI CHECK (HOCVI IN ('CN', 'KS', 'Ths', 'TS', 'PTS'))
 -- 8. Lớp trưởng của một lớp phải là học viên của lớp đó. 
+
 --ALTER TABLE (SELECT * FROM LOP JOIN HOCVIEN HV ON LOP.MALOP = HV.MALOP)
 --ADD CONSTRAINT CK_TRGLOP 
 --CHECK MALOP = (SELECT MALOP FROM HOCVIEN WHERE MAHV = TRGLOP)
 
-ALTER TABLE LOP
-ADD CONSTRAINT CK_TRGLOP 
-CHECK (TRGLOP IN (
-SELECT MAHV
-FROM HOCVIEN
-WHERE 
-GROUP BY 
-
+--ALTER TABLE LOP
+--ADD CONSTRAINT CK_TRGLOP 
+--CHECK (TRGLOP IN (
+--SELECT MAHV
+--FROM HOCVIEN
+--WHERE 
+--GROUP BY 
 
 -- 9. Học viên ít nhất là 18 tuổi. 
-
+ALTER TABLE HOCVIEN ADD CONSTRAINT CH_TUOI CHECK (YEAR(GETDATE()) - YEAR(NGSINH) >= 18)
 -- 10. Giảng dạy một môn học ngày bắt đầu (TUNGAY) phải nhỏ hơn ngày kết thúc (DENNGAY). 
 ALTER TABLE GIANGDAY ADD CONSTRAINT CK_LICH CHECK (TUNGAY < DENNGAY)
 -- 11. Giáo viên khi vào làm ít nhất là 22 tuổi. 
-
+ALTER TABLE GIAOVIEN ADD CONSTRAINT CK_TUOI CHECK (YEAR(NGVL) - YEAR(NGSINH) >=22)
 -- 12. Tất cả các môn học đều có số tín chỉ lý thuyết và tín chỉ thực hành chênh lệch nhau không quá 3. 
 ALTER TABLE MONHOC ADD CONSTRAINT CK_TINCHI CHECK (TCLT - TCTH >= -3 AND TCLT - TCTH <= 3)
  --13. Mỗi học kỳ của một năm học, một lớp chỉ được học tối đa 3 môn. 
-
+ --ALTER TABLE GIANGDAY ADD CONSTRAINT CK_MON CHECK (
  --14. Sỉ số của một lớp bằng với số lượng học viên thuộc lớp đó. 
  --ALTER TABLE LOP
  --ADD CONSTRAINT CK_SISO
@@ -171,8 +171,6 @@ ALTER TABLE MONHOC ADD CONSTRAINT CK_TINCHI CHECK (TCLT - TCTH >= -3 AND TCLT - 
  --18. Học viên chỉ được thi những môn mà lớp của học viên đó đã học xong. 
  --19. Khi phân công giảng dạy một môn học, phải xét đến thứ tự trước sau giữa các môn học (sau khi học xong những môn học phải học trước mới được học những môn liền sau). 
  --20. Giáo viên chỉ được phân công dạy những môn thuộc khoa giáo viên đó phụ trách.
-
-
 
 -- NHAP DU LIEU KHOA --
 INSERT INTO KHOA VALUES('KHMT','Khoa hoc may tinh','7/6/2005','GV01')
@@ -423,7 +421,7 @@ SET HESO = HESO + 0.2
 WHERE MAGV IN (SELECT TRGKHOA FROM KHOA)
 --2.	Cập nhật giá trị điểm trung bình tất cả các môn học (DIEMTB) của mỗi học viên (tất cả các môn học đều có hệ số 1 và nếu học viên thi một môn nhiều lần, chỉ lấy điểm của lần thi sau cùng).
 UPDATE HOCVIEN1
-SET DIEMTB 
+SET DIEMTB = 
 
 SELECT 
 --3.	Cập nhật giá trị cho cột GHICHU là 'Cam thi' đối với trường hợp: học viên có một môn bất kỳ thi lần thứ 3 dưới 5 điểm.
@@ -627,7 +625,6 @@ AND SISO >= ALL(SELECT SISO FROM LOP)) -- Sĩ số các lớp cao nhất
 --AND SISO = SELECT MAX(SISO) FROM LOP
 
 --24.	Tìm học viên (mã học viên, họ tên) có số môn đạt điểm 9,10 nhiều nhất.
-
 SELECT MAHV, HO, TEN
 FROM HOCVIEN
 WHERE MAHV IN (
@@ -641,6 +638,7 @@ FROM KETQUATHI
 WHERE DIEM = 9 OR DIEM = 10
 GROUP BY MAHV))
 
+-- Hoặc:
 SELECT	A.MAHV, HO, TEN,COUNT(MAMH) [SO MON]
 FROM		KETQUATHI A, HOCVIEN B
 WHERE	A.MAHV=B.MAHV AND (DIEM=9 OR DIEM=10) 
@@ -650,6 +648,7 @@ HAVING	COUNT(MAMH)>=ALL(SELECT 	COUNT(MAMH)
 					  WHERE	DIEM=9 OR DIEM=10
 					  GROUP BY MAHV)
 --25.	Trong từng lớp, tìm học viên (mã học viên, họ tên) có số môn đạt điểm 9,10 nhiều nhất.
+
 SELECT	A.MAHV, MALOP, HO, TEN, COUNT(MAMH) [SO MON] 
 FROM	HOCVIEN A, KETQUATHI B
 WHERE	A.MAHV=B.MAHV AND (DIEM=9 OR DIEM=10) 
@@ -658,8 +657,6 @@ HAVING	COUNT(MAMH) >= ALL(SELECT COUNT(MAMH)
 					  FROM	HOCVIEN C, KETQUATHI D
 					  WHERE	C.MAHV = D.MAHV AND (DIEM=9 OR DIEM=10) AND C.MALOP = A.MALOP
 					  GROUP BY C.MAHV, MALOP)				  
---SELECT MASP, TENSP FROM SANPHAM AS SP1 WHERE GIA =
---(SELECT MAX(GIA) FROM SANPHAM SP2 WHERE SP1.NUOCSX = SP2.NUOCSX GROUP BY NUOCSX )
 
 --26.	Trong từng học kỳ của từng năm, mỗi giáo viên phân công dạy bao nhiêu môn học, bao nhiêu lớp.
 SELECT MAGV, HOCKY, NAM, COUNT(MALOP) SOLOP, COUNT(MAMH) SOMON
@@ -696,7 +693,35 @@ AND MAHV NOT IN(
 SELECT MAHV
 FROM KETQUATHI1
 WHERE LANTHI = 1 AND KQUA = 'KHONG DAT')
+-- Cách 2
+SELECT DISTINCT A.MAHV, HO, TEN
+FROM HOCVIEN A, KETQUATHI1 B
+WHERE A.MAHV = B.MAHV AND A.MAHV NOT IN(
+SELECT MAHV
+FROM KETQUATHI1
+WHERE LANTHI = 1 AND KQUA = 'KHONG DAT')
 --30.	* Tìm học viên (mã học viên, họ tên) đã thi tất cả các môn đều đạt (chỉ xét lần thi thứ 1).
-SELECT 
-FROM
-WHERE
+
+--Tìm mã học viên không thi đầy đủ các môn
+
+SELECT MAMH
+FROM KETQUATHI A
+WHERE MAMH NOT IN(
+SELECT DISTINCT MAMH  -- Cac mon da thi
+FROM KETQUATHI B
+WHERE A.MAHV = B.MAHV
+)
+
+
+--Các môn học viên đó chưa thi và chưa đạt trong lần thi 1
+--Các môn học viên đã thi và đạt trong lần thi 1
+
+
+SELECT	DISTINCT A.MAHV, HO, TEN
+FROM		KETQUATHI1 A, HOCVIEN B
+WHERE	A.MAHV=B.MAHV AND KQUA= 'DAT' AND LANTHI=1 AND  
+		NOT EXISTS(SELECT	MAMH
+				FROM		MONHOC C
+				WHERE	NOT EXISTS(SELECT	MAHV
+								FROM	KETQUATHI1 D
+								WHERE	D.MAHV=A.MAHV AND D.MAMH=C.MAMH))	
