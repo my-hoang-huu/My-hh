@@ -1,4 +1,4 @@
-﻿--BAI TAP 1
+﻿Z--BAI TAP 1
 --USE MASTER
 SET DATEFORMAT DMY
 create database QuanLyBanHang
@@ -98,8 +98,11 @@ ALTER TABLE KHACHHANG ADD CONSTRAINT CK_KHACHHANG CHECK(NGDK>NGSINH)
 --11.	Ngày mua hàng (NGHD) của một khách hàng thành viên sẽ lớn hơn hoặc bằng ngày khách hàng đó đăng ký thành viên (NGDK).
 
 --12.	Ngày bán hàng (NGHD) của một nhân viên phải lớn hơn hoặc bằng ngày nhân viên đó vào làm.
+
 --13.	Mỗi một hóa đơn phải có ít nhất một chi tiết hóa đơn.
+
 --14.	Trị giá của một hóa đơn là tổng thành tiền (số lượng*đơn giá) của các chi tiết thuộc hóa đơn đó.
+
 --15.	Doanh số của một khách hàng là tổng trị giá các hóa đơn mà khách hàng thành viên đó đã mua.
 
 -- Buoi 2: nhap du lieu
@@ -458,21 +461,21 @@ FROM HOADON HD JOIN KHACHHANG KH
 ON HD.MAKH = KH.MAKH
 WHERE YEAR(NGHD) = 2006 AND TRIGIA = (SELECT MAX(TRIGIA) FROM HOADON)
 --26.	In ra danh sách 3 khách hàng (MAKH, HOTEN) có doanh số cao nhất.
-SELECT TOP 3 MAKH, HOTEN, DOANHSO
+SELECT TOP 3 WITH TIES MAKH, HOTEN, DOANHSO
 FROM KHACHHANG  
 ORDER BY DOANHSO DESC
 --27.	In ra danh sách các sản phẩm (MASP, TENSP) có giá bán bằng 1 trong 3 mức giá cao nhất.
 SELECT MASP, TENSP, GIA
 FROM SANPHAM
 WHERE GIA IN(
-SELECT TOP 3 GIA
+SELECT DISTINCT TOP 3 GIA
 FROM SANPHAM
 ORDER BY GIA DESC)
 --28.	In ra danh sách các sản phẩm (MASP, TENSP) do “Thai Lan” sản xuất có giá bằng 1 trong 3 mức giá cao nhất (của tất cả các sản phẩm).
 SELECT MASP, TENSP, GIA
 FROM SANPHAM
 WHERE NUOCSX= 'THAI LAN'AND GIA IN(
-SELECT TOP 3 GIA
+SELECT DISTINCT TOP 3 GIA
 FROM SANPHAM
 ORDER BY GIA DESC)
 --29.	In ra danh sách các sản phẩm (MASP, TENSP) do “Trung Quoc” sản xuất có giá bằng 1 trong 3 mức giá cao nhất (của sản phẩm do “Trung Quoc” sản xuất).
@@ -489,7 +492,7 @@ SELECT TOP 3 RANK() OVER (order by kh.DOANHSO DESC), HOTEN
 FROM KHACHHANG kh
 
 --31.	Tính tổng số sản phẩm do “Trung Quoc” sản xuất.
-SELECT COUNT(MASP) [COUNT_SAN PHAM TRUNG QUOC]
+SELECT COUNT(MASP) [SAN PHAM TRUNG QUOC]
 FROM SANPHAM
 WHERE NUOCSX = 'TRUNG QUOC'
 --32.	Tính tổng số sản phẩm của từng nước sản xuất.
@@ -570,6 +573,12 @@ WHERE YEAR(NGHD) = 2006
 GROUP BY MONTH(NGHD)
 ORDER BY DOANHSO DESC
 --41.	Tìm sản phẩm (MASP, TENSP) có tổng số lượng bán ra thấp nhất trong năm 2006.
+--Cách 0
+SELECT TOP 1 WITH TIES MASP
+FROM CTHD
+WHERE SOHD IN (SELECT SOHD FROM HOADON WHERE YEAR(NGHD) = 2006)
+GROUP BY MASP
+ORDER BY SUM(SL) ASC
 --Cach 1
 SELECT MASP, TENSP
 FROM SANPHAM
