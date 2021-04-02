@@ -166,10 +166,15 @@ ALTER TABLE MONHOC ADD CONSTRAINT CK_TINCHI CHECK (TCLT - TCTH >= -3 AND TCLT - 
  --AND LOP.MALOP = (
  --SELECT 
  --15. Các giáo viên có cùng học vị, học hàm, hệ số lương thì mức lương bằng nhau. 
+
  --16. Học viên chỉ được thi lại (lần thi >1) khi điểm của lần thi trước đó dưới 5. 
+
  --17. Ngày thi của lần thi sau phải lớn hơn ngày thi của lần thi trước (cùng học viên, cùng môn học). 
+
  --18. Học viên chỉ được thi những môn mà lớp của học viên đó đã học xong. 
+
  --19. Khi phân công giảng dạy một môn học, phải xét đến thứ tự trước sau giữa các môn học (sau khi học xong những môn học phải học trước mới được học những môn liền sau). 
+
  --20. Giáo viên chỉ được phân công dạy những môn thuộc khoa giáo viên đó phụ trách.
 
 -- NHAP DU LIEU KHOA --
@@ -758,3 +763,9 @@ FROM LOP L, HOCVIEN H
 WHERE L.TRGLOP = H.MAHV
 
 SELECT * FROM LOP
+
+SELECT H.MAHV, K.MAHV MAHVTHI, HO, TEN, H.MALOP, K.MAMH, LANTHI, TUNGAY, DENNGAY, NGTHI, MAGV
+FROM HOCVIEN H JOIN GIANGDAY G 
+ON H.MALOP = G.MALOP JOIN KETQUATHI K
+ON K.MAMH = G.MAMH
+WHERE H.MAHV = K.MAHV
