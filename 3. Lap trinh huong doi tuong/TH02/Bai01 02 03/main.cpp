@@ -1,0 +1,111 @@
+#include "Dagiac.h"
+#include "Tamgiac.h"
+int main()
+{
+	Diem a, b, c(2, 4), d(5);
+	float k;
+	cout << "DIEM\n--\nNhap diem a: ";
+	a.Nhap();
+	cout << "Diem a vua nhap: ";
+	a.Xuat();
+	cout << "\n--\nToa do cua cac diem thiet lap: ";
+	cout << "\nDiem b, thiet lap mac dinh: ";
+	b.Xuat();
+	cout << "\nDiem c, thiet lap co tham so dau vao x = 2, y = 4: ";
+	c.Xuat();
+	cout << "\nDiem d, thiet lap chi co hoanh do x = 5: ";
+	d.Xuat();
+	cout << "\nDiem e, thiet lap sao chep tu a: ";
+	Diem e(a);
+	e.Xuat();
+	cout << "\n--\nTinh tien: ";
+	float x, y;
+	cout << "\nNhap do lech theo phuong Ox = ";
+	cin >> x;
+	cout << "Nhap do lech theo phuong doc Oy = ";
+	cin >> y;
+	cout << "Diem a sau khi tinh tien theo dx va dy: ";
+	a.TinhTien(x, y);
+	a.Xuat();
+
+
+	cout << "\n---------------------\nTAM GIAC\n";
+	Tamgiac f, g;
+	cout << "\nTam giac f duoc thiet lap mac dinh: ";
+	f.Xuat();
+	f.Nhap();
+	cout << "\nTam giac f vua nhap: ";
+	f.Xuat();
+	g = Tamgiac(f);
+	cout << "\n--\nTinh tien: ";
+	float X, Y;
+	cout << "\nNhap do lech theo phuong Ox: ";
+	cin >> X;
+	cout << "\nNhap do lech theo phuong Oy: ";
+	cin >> Y;
+	f.TinhTien(X, Y);
+	cout << "\nTam giac f sau khi tinh tien: ";
+	f.Xuat();
+	f = Tamgiac(g);
+	cout << "\n--\nPhep quay tam O";
+	cout << "\nNhap goc quay: ";
+	float goc;
+	cin >> goc;
+	f.Quay(goc);
+	cout << "\nTam giac f sau khi quay mot goc " << goc << " do quanh goc toa do O";
+	f.Xuat();
+	cout << "\n--\nPhong to: \nNhap so lan:	";
+	f = Tamgiac(g);
+	cin >> k;
+	cout << "\nTam giac f sau khi phong to " << k << " lan: ";
+	f.PhongTo(k);
+	f.Xuat();
+	f = Tamgiac(g);
+	cout << "\n--\nThu nho: \nNhap so lan:	";
+	cin >> k;
+	cout << "\nTam giac f sau khi thu nho " << k << " lan: ";
+	f.ThuNho(k);
+	f.Xuat();
+
+
+	cout << "\n\n------------------\nDA GIAC\n";
+	Dagiac v;
+	cout << "\nDa giac v duoc tao mac dinh: ";
+	v.Xuat();
+	cout << "\n--\nNhap da giac v: ";
+	v.Nhap();
+	Dagiac w = v;
+	Dagiac v1 = v;
+	Dagiac v2 = v;
+	cout << "\n--\nDa giac v ban dau: ";
+	v.Xuat();
+	cout << "\nDa giac w sao chep tu v: ";
+	w.Xuat();
+	cout << "\n--\nTinh tien\n";
+	cout << "\nNhap do lech theo phuong Ox: ";
+	cin >> X;
+	cout << "\nNhap do lech theo phuong Oy: ";
+	cin >> Y;
+	v.TinhTien(X, Y);
+	cout << "\nDa giac v sau khi tinh tien: ";
+	v.Xuat();
+	cout << "\n--\nPhep quay tam O";
+	cout << "\nNhap goc quay: ";
+	cin >> goc;
+	v1.Quay(goc);
+	cout << "\nDa giac sau khi quay mot goc " << goc << " do quanh goc toa do O";
+	v1.Xuat();
+	cout << "\n--\nPhong to: \nNhap so lan:	";
+	cin >> k;
+	cout << "\nDa giac v sau khi phong to " << k << " lan: ";
+	v2.PhongTo(k);
+	v2.Xuat();
+	cout << "\n--\nThu nho: \nNhap so lan:	";
+	cin >> k;
+	cout << "\nDa giac v sau khi thu nho " << k << " lan: ";
+	w.ThuNho(k);
+	w.Xuat();
+
+	cout << endl;
+	return 0;
+}
