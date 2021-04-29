@@ -3,7 +3,7 @@
 Dathuc::Dathuc(const Dathuc& d) {
 	n = d.n;
 	a = new float[n + 1];
-	for (int i = 0; i <= n; i++)
+	for (int i = 0; i < n + 1; i++)
 	{
 		a[i] = d.a[i];
 	}
@@ -11,8 +11,8 @@ Dathuc::Dathuc(const Dathuc& d) {
 Dathuc::Dathuc(float* aa, int nn)
 {
 	n = nn;
-	a = new float[n];
-	for (int i = 0; i < n; i++)
+	a = new float[n + 1];
+	for (int i = 0; i < n + 1; i++)
 	{
 		a[i] = aa[i];
 	}
@@ -37,17 +37,23 @@ void Dathuc::Nhap() {
 }
 void Dathuc::Xuat() {
 	cout << "\nf(x) = ";
-	for (int i = n; i >= 0; i--)
+	for (int i = n; i > 0; i--)
 	{
 		cout << a[i] << "x^" << i << " + ";
 	}
-	cout << a[1];
+	cout << a[0];
 }
 float Dathuc::Get(int g) {
-	return a[g];
+	if (g <= n)
+		return a[g];
+	else
+		cout << "\n!!Da thuc khong co bac " << g;
 }
 void Dathuc::Set(int g, float b) {
-	a[g] = b;
+	if (g <= this->n)
+		this->a[g] = b;
+	else
+		cout << "\n!!Da thuc khong co bac " << g;
 }
 Dathuc Dathuc::Cong(Dathuc h) {
 	Dathuc s;
@@ -63,9 +69,9 @@ Dathuc Dathuc::Cong(Dathuc h) {
 		s.n = h.n;
 	}
 	s.a = new float[s.n + 1];
-	for (int i = 0; i <= s.n; i++)
+	for (int i = 0; i < s.n + 1; i++)
 	{
-		if (i <= min)
+		if (i < min)
 		{
 			s.a[i] = a[i] + h.a[i];
 		}
@@ -97,9 +103,9 @@ Dathuc Dathuc::Tru(Dathuc h) {
 		s.n = h.n;
 	}
 	s.a = new float[s.n + 1];
-	for (int i = 0; i <= s.n; i++)
+	for (int i = 0; i < s.n + 1; i++)
 	{
-		if (i <= min)
+		if (i < min)
 		{
 			s.a[i] = a[i] - h.a[i];
 		}
@@ -120,6 +126,7 @@ Dathuc Dathuc::Tru(Dathuc h) {
 
 Dathuc::~Dathuc()
 {
+	cout << "\n                                                   Ham huy duoc goi thuc hien! ";
 	this->n = 0;
 	delete[] this->a;
 }
