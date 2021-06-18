@@ -13,6 +13,7 @@ int main()
 	cout << "\nGia tri cua a dang giu *a = " << *a;
 	int x = 3;
 	int& y = x;
+	delete a;
 	a = &x;
 	cout << "\n	Cho x = 3\n	int& y = x\n	a = &x";
 	cout << "\n*x = LOI!!!!";
